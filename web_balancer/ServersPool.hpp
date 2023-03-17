@@ -4,32 +4,29 @@
 #include "Config.hpp"
 #include <vector>
 #include <arpa/inet.h>
+#include <memory>
 
 
 class ServersPool{
 
 public:
     void operator=(const ServersPool&) = delete;
-    ServersPool(ServersPool& other) = delete;
 
-    static ServersPool *getInstance();
+    static ServersPool &getInstance();
     void addServers();
-    void setConfig(IConfig*);
-    std::vector<sockaddr_in*> getServers() const {return this->servers;}
+    void setConfig(std::shared_ptr<IConfig>);
+    std::vector<std::shared_ptr<sockaddr_in>> getServers() const {return this->servers;}
 
-    ~ServersPool(){
-        for(auto elem: servers){
-            delete elem;
-        }
-    }
-    
 private:
-    std::vector<sockaddr_in*> servers;
+    std::vector<std::shared_ptr<sockaddr_in>> servers;
 
 protected:
+    ServersPool(const ServersPool& other);
     ServersPool() = default;
-    static ServersPool* pool;
-    IConfig* config;
+    
+    ~ServersPool(){}
+
+    std::shared_ptr<IConfig> config;
 };
 
 #endif

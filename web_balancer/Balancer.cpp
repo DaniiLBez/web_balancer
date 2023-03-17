@@ -54,8 +54,8 @@ void Balancer::balancing(){
             continue;
         }
         
-        index = (++index) % pool->getServers().size();
-        sockaddr_in* dist = pool->getServers()[index];
+        index = (++index) % pool.getServers().size();
+        auto dist = pool.getServers()[index].get();
         int sent_bytes = sendto(udp_server, (const char*)packet_data, max_packet_size, 0, (sockaddr*)dist, sizeof(sockaddr_in));
 
         if ( sent_bytes != max_packet_size ){

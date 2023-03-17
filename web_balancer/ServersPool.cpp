@@ -1,11 +1,7 @@
 #include "ServersPool.hpp"
 
-ServersPool* ServersPool::pool = nullptr;
-
-ServersPool* ServersPool::getInstance(){
-    if(!pool){
-        pool = new ServersPool();
-    }
+ServersPool& ServersPool::getInstance(){
+    static ServersPool pool;
     return pool;
 }
 
@@ -14,7 +10,7 @@ void ServersPool::addServers(){
         
         int delim_pos = elem.find(':');
 
-        sockaddr_in* address = new sockaddr_in();
+        auto address = std::make_shared<sockaddr_in>();
 
         address->sin_family = AF_INET;
         inet_pton(AF_INET, elem.substr(0, delim_pos).c_str(), &address->sin_addr);
@@ -24,6 +20,6 @@ void ServersPool::addServers(){
     }
 }
 
-void ServersPool::setConfig(IConfig* config){
-    this->config = config;
+void ServersPool::setConfig(std::shared_ptr<IConfig> config){
+    this->config = std::move(config);
 }
