@@ -8,13 +8,13 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <string>
-#include <vector>
+#include <queue>
 #include "Timestamp.hpp"
 
 class Balancer{
 
 public:
-    Balancer(int port, ServersPool* pool, int limit):port(port), pool(pool), limit(limit){}
+    Balancer(int port, ServersPool& pool, int limit):port(port), pool(pool), limit(limit){}
     void startUdpServer();
     void balancing();
     bool isPacketAllow();
@@ -22,9 +22,9 @@ public:
 private:
     int port;
     int limit;
-    ServersPool* pool;
+    ServersPool& pool;
     int udp_server;
-    std::vector<Timestamp> timestamps;
+    std::queue<Timestamp> timestamps;
 };
 
 #endif

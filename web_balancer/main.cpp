@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Config.hpp"
 #include "ServersPool.hpp"
 #include "Balancer.hpp"
@@ -7,12 +6,12 @@
 int main() {
     
     try{
-        IConfig* config = new ConfigJson("../Config.json");
+        std::shared_ptr<IConfig> config = std::dynamic_pointer_cast<IConfig>(std::make_shared<ConfigJson>("../Config.json"));
         
-        ServersPool* serv_pool = ServersPool::getInstance();
-        BalancerBuilder* bb = new BalancerBuilder(config, serv_pool);
+        auto bb = std::make_unique<BalancerBuilder>(config, ServersPool::getInstance());
         bb->build();
-        Balancer* balancer = bb->getBalancer();
+        
+        auto balancer = std::move(bb->getBalancer());
         balancer->startUdpServer();
         balancer->balancing();
 

@@ -25,16 +25,12 @@ void Balancer::startUdpServer(){
 }
 
 bool Balancer::isPacketAllow(){
-    int count = timestamps.size();
-    if(count < limit) return true;
-    
-    if(timestamps.back().getEllapsedTime() < 1000){
-        timestamps.pop_back();
-        return false;
+
+    if(!timestamps.empty() && timestamps.front().getEllapsedTime() > 1000){
+        timestamps.pop(); 
     }
 
-    timestamps.clear();
-    return true; 
+    return timestamps.size() < limit;
 }
 
 void Balancer::balancing(){
@@ -54,14 +50,14 @@ void Balancer::balancing(){
             continue;
         }
         
-        index = (++index) % pool->getServers().size();
-        sockaddr_in* dist = pool->getServers()[index];
+        index = (++index) % pool.getServers().size();
+        auto dist = pool.getServers()[index].get();
         int sent_bytes = sendto(udp_server, (const char*)packet_data, max_packet_size, 0, (sockaddr*)dist, sizeof(sockaddr_in));
-
+        timestamps.push(Timestamp());
+        
         if ( sent_bytes != max_packet_size ){
             throw std::runtime_error("failed to send packet: return value = " + std::to_string(sent_bytes));
-        }else{
-            timestamps.push_back(Timestamp());
+        }else{    
             std::cout << "Packet send to server №" << std::to_string(index)<< std::endl;
         }    
     }

@@ -4,32 +4,32 @@
 #include "Config.hpp"
 #include "ServersPool.hpp"
 #include "Balancer.hpp"
+#include <memory>
 
 class BalancerBuilder{
 
 public:
-    BalancerBuilder(IConfig* config, ServersPool* pool):config(config), pool(pool){
-        this->pool->setConfig(this->config);
-        this->pool->addServers();
+    BalancerBuilder(std::shared_ptr<IConfig> config, ServersPool& pool):config(std::move(config)), pool(pool){
+        this->pool.setConfig(this->config);
+        this->pool.addServers();
     }
     
     ~BalancerBuilder(){
         this->config = nullptr;
-        this->pool = nullptr;
         this->balancer = nullptr;
     }
 
     void build(){
-        this->balancer = new Balancer(config->getPort(), pool, config->getLimit());
+        this->balancer = std::make_unique<Balancer>(config->getPort(), pool, config->getLimit());
     }
 
-    Balancer* getBalancer(){return balancer;}
+    std::unique_ptr<Balancer>& getBalancer(){return balancer;}
     
 protected:
-    Balancer* balancer;
+    std::unique_ptr<Balancer> balancer;
 private:
-    IConfig* config;
-    ServersPool* pool;
+    std::shared_ptr<IConfig> config;
+    ServersPool& pool;
 };
 
 #endif
