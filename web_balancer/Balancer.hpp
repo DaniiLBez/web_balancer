@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <fcntl.h>
 #include <string>
-#include <vector>
+#include <queue>
 #include "Timestamp.hpp"
 
 class Balancer{
@@ -24,7 +24,7 @@ private:
     int limit;
     ServersPool& pool;
     int udp_server;
-    std::vector<Timestamp> timestamps;
+    std::queue<Timestamp> timestamps;
 };
 
 #endif
